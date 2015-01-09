@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="document"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="document">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="sentences"/>
+        <xs:element ref="coreference"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="sentences">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="sentence"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="sentence">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="dependencies"/>
+        <xs:element ref="parse"/>
+        <xs:element ref="tokens"/>
+      </xs:choice>
+      <xs:attribute name="id" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="dependencies">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="dep"/>
+      </xs:sequence>
+      <xs:attribute name="type" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="dep">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="governor"/>
+        <xs:element ref="dependent"/>
+      </xs:sequence>
+      <xs:attribute name="type" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="governor">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:NCName">
+          <xs:attribute name="idx" use="required" type="xs:integer"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="dependent">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:NCName">
+          <xs:attribute name="idx" use="required" type="xs:integer"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="parse" type="xs:string"/>
+  <xs:element name="tokens">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="token"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="token">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="word"/>
+        <xs:element ref="lemma"/>
+        <xs:element ref="CharacterOffsetBegin"/>
+        <xs:element ref="CharacterOffsetEnd"/>
+        <xs:element ref="POS"/>
+        <xs:element ref="NER"/>
+      </xs:sequence>
+      <xs:attribute name="id" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="word" type="xs:NMTOKEN"/>
+  <xs:element name="lemma" type="xs:NMTOKEN"/>
+  <xs:element name="CharacterOffsetBegin" type="xs:integer"/>
+  <xs:element name="CharacterOffsetEnd" type="xs:integer"/>
+  <xs:element name="POS" type="xs:NMTOKEN"/>
+  <xs:element name="NER" type="xs:NCName"/>
+  <xs:element name="coreference">
+    <xs:complexType>
+      <xs:sequence minOccurs="0">
+        <xs:element ref="coreference"/>
+        <xs:element maxOccurs="unbounded" ref="mention"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="mention">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="sentence"/>
+        <xs:element ref="start"/>
+        <xs:element ref="end"/>
+        <xs:element ref="head"/>
+      </xs:sequence>
+      <xs:attribute name="representative" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="start" type="xs:integer"/>
+  <xs:element name="end" type="xs:integer"/>
+  <xs:element name="head" type="xs:integer"/>
+</xs:schema>

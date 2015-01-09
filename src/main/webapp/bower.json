@@ -1,0 +1,23 @@
+{
+  "name": "aleator",
+  "version": "0.0.0",
+  "authors": [
+    "Gregory Buchenberger <buchenberger@gmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.3.8",
+    "bootstrap-css-only": "~3.3.1",
+    "angular-bootstrap": "~0.12.0",
+    "angular-ui-grid": "~3.0.0-rc.16",
+    "angular-route": "~1.3.8"
+  }
+}
