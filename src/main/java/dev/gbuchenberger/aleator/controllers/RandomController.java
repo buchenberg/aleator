@@ -23,7 +23,7 @@ public class RandomController {
 	@Autowired
 	private TokenRepository tokenRepo;
 
-	@RequestMapping("random")
+	@RequestMapping("api/random")
 	public Random getRandom() {
 		log.info("Get random");
 		String random = new String();
