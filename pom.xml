@@ -18,51 +18,6 @@
 	</properties>
 	<build>
 		<plugins>
-			<!-- <plugin>
-				<groupId>org.jvnet.jaxb2.maven2</groupId>
-				<artifactId>maven-jaxb2-plugin</artifactId>
-				<version>0.7.4</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.jvnet.hyperjaxb3</groupId>
-						<artifactId>hyperjaxb3-ejb-plugin</artifactId>
-						<version>0.5.5</version>
-					</dependency>
-				</dependencies>
-				<executions>
-					<execution>
-						<id>generate-sources</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<strict>false</strict>
-							<schemaIncludes>
-								<value>nlp.xsd</value>
-							</schemaIncludes>
-							<extension>true</extension>
-							<generatePackage>dev.gbuchenberger.aleator.domain.nlp</generatePackage>
-							<generateDirectory>${project.build.directory}/generated-sources/jaxbandjpa</generateDirectory>
-							<args>
-								<arg>-Xannotate</arg>
-								<arg>-Xhyperjaxb3-ejb</arg>
-							</args>
-							<plugins>
-								<plugin>
-									<groupId>org.jvnet.jaxb2_commons</groupId>
-									<artifactId>jaxb2-basics</artifactId>
-									<version>0.6.0</version>
-								</plugin>
-								<plugin>
-									<groupId>org.jvnet.jaxb2_commons</groupId>
-									<artifactId>jaxb2-basics-annotate</artifactId>
-									<version>0.6.0</version>
-								</plugin>
-							</plugins>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin> -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -85,11 +40,11 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- <dependency>
+		<dependency>
 			<groupId>org.jvnet.hyperjaxb3</groupId>
 			<artifactId>hyperjaxb3-ejb-runtime</artifactId>
 			<version>0.6.0</version>
-		</dependency> -->
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
