@@ -1,12 +1,17 @@
 'use strict';
 
-angular.module('aleator.random', ['ngRoute'])
-.config(function($routeProvider) {
-  $routeProvider.when('/random', {
-    templateUrl: 'components/random/random.html',
+angular.module('aleator.random', ['ui.router'])
+
+.config(function($stateProvider) {
+  $stateProvider
+  .state('random', {
+    url: "/random",
+    templateUrl: "components/random/view.html",
     controller: 'aleator.random.controller'
-  })
+  });
+
 })
+
 .controller('aleator.random.controller', ['$scope', '$http',
   function($scope, $http) {
     $scope.random = function() {

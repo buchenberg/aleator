@@ -1,4 +1,4 @@
-package dev.gbuchenberger.aleator.controllers;
+package dev.gbuchenberger.aleator.controller;
 
 import java.util.Iterator;
 
@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.gbuchenberger.aleator.domain.local.Random;
 import dev.gbuchenberger.aleator.domain.nlp.Token;
 import dev.gbuchenberger.aleator.domain.nlp.Tokens;
 import dev.gbuchenberger.aleator.domain.repository.TokenRepository;
 import dev.gbuchenberger.aleator.domain.repository.TokensRepository;
+import dev.gbuchenberger.aleator.model.Random;
 
 @RestController
 public class RandomController {

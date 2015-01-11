@@ -1,5 +1,6 @@
 package dev.gbuchenberger.aleator.domain.repository;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
@@ -7,6 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import dev.gbuchenberger.aleator.domain.nlp.Token;
+import dev.gbuchenberger.aleator.domain.nlp.Tokens;
 
 public interface TokenRepository extends CrudRepository<Token, Long> {
 	
@@ -23,5 +25,7 @@ public interface TokenRepository extends CrudRepository<Token, Long> {
 	List<Token> getTokensById(@Param("id") long id);
 	
 	List<Token> findByPos(String pos);
+	
+	Token findByHjid(Long hjid);
 
 }

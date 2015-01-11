@@ -1,4 +1,4 @@
-package dev.gbuchenberger.aleator.domain.local;
+package dev.gbuchenberger.aleator.model;
 
 public class Random {
 	

@@ -1,4 +1,4 @@
-package dev.gbuchenberger.aleator.controllers;
+package dev.gbuchenberger.aleator.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

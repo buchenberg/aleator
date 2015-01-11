@@ -1,4 +1,4 @@
-package dev.gbuchenberger.aleator.controllers;
+package dev.gbuchenberger.aleator.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
