@@ -1,8 +1,8 @@
 'use strict';
 
-var app = angular.module('aleator', [
+angular.module('aleator', [
   'ui.router',
-  'ui.bootstrap',
+  'mobile-angular-ui',
   'ui.grid',
   'ui.grid.cellNav',
   'ui.grid.edit',
@@ -11,10 +11,33 @@ var app = angular.module('aleator', [
   'aleator.random',
   'aleator.token',
   'aleator.input'
-]);
+])
 
-app.controller('MainCtl', ['$scope', '$http',
-  function($scope, $http) {
-    //stub
+.config(function($urlRouterProvider){
+  $urlRouterProvider.when('', '/home');
+})
+
+.controller('MainCtl', ['$scope', '$state',
+  function($scope, $state) {
+    $scope.title = 'aleator';
+    $scope.nav = [
+      {
+        'text': 'Home',
+        'href': $state.href('home'),
+        'class': 'active'
+      },{
+        'text': 'Input',
+        'href': $state.href('input'),
+        'class': ''
+      },{
+        'text': 'Tokens',
+        'href': $state.href('token'),
+        'class': ''
+      },{
+        'text': 'Random',
+        'href': $state.href('random'),
+        'class': ''
+      }
+    ];
   }
 ]);
