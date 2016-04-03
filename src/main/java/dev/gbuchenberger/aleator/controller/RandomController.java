@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import dev.gbuchenberger.aleator.domain.nlp.Token;
 import dev.gbuchenberger.aleator.domain.nlp.Tokens;
@@ -23,6 +24,7 @@ public class RandomController {
 	@Autowired
 	private TokenRepository tokenRepo;
 
+	@CrossOrigin(origins = "*")
 	@RequestMapping("api/random")
 	public Random getRandom() {
 		log.info("Get random");
