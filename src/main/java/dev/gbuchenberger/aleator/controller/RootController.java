@@ -17,7 +17,7 @@ public class RootController {
 	@Autowired
     private RootRepository roots;
 
-    @RequestMapping("root/{id}")
+    @RequestMapping("roots/{id}")
     public Root getRoot(@PathVariable("id") long id) {
         log.info("Get root");
         return roots.findOne(id);

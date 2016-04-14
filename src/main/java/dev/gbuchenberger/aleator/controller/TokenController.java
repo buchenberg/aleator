@@ -26,7 +26,7 @@ public class TokenController {
 			method = RequestMethod.GET, 
 			produces = "application/json")
 	public Iterable<Token> getToken() {
-		log.info("Get token");
+		log.info("Get tokens");
 		return tokenRepo.findAll();
 	}
 	@RequestMapping(
