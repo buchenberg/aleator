@@ -14,7 +14,7 @@ angular.module('aleator.input', ['ui.router'])
 .controller('aleator.input.controller', ['$scope', '$http', 'appConfig',
   function($scope, $http, appConfig) {
     $scope.inputHandler = function() {
-      $http.post(appConfig.baseUrl + '/api/input', $scope.input.text).success(
+      $http.post(appConfig.apiUrl + 'input', $scope.input.text).success(
         function(data, status, headers, config) {
           $scope.result = data;
         }).error(function(data, status, headers, config) {

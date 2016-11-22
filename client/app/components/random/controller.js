@@ -15,7 +15,7 @@ angular.module('aleator.random', ['ui.router'])
 .controller('aleator.random.controller', ['$scope', '$http', 'appConfig',
   function($scope, $http, appConfig) {
     $scope.random = function() {
-      $http.get(appConfig.baseUrl + '/api/random').success(
+      $http.get(appConfig.apiUrl + 'random').success(
         function(data, status, headers, config) {
           $scope.randomResult = data;
         }).error(function(data, status, headers, config) {

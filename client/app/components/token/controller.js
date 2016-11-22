@@ -58,7 +58,7 @@ function($scope, $http, appConfig) {
     }
   };
 
-  $http.get(appConfig.baseUrl + '/api/token').success(function(data) {
+  $http.get(appConfig.apiUrl + 'token').success(function(data) {
     $scope.gridOptions.data = data;
   });
 

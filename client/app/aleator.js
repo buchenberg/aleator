@@ -13,7 +13,7 @@ angular.module('aleator', [
     'aleator.input'
   ])
   .constant("appConfig", {
-    "baseUrl": "http://localhost:8081"
+    "apiUrl": "http://localhost:8081/api/"
   })
 
 .config(function ($urlRouterProvider) {
