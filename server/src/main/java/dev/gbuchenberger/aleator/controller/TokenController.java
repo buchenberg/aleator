@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,8 @@ public class TokenController {
 
 	@Autowired
 	private TokenRepository tokenRepo;
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(
 			value = "", 
 			method = RequestMethod.GET, 
@@ -29,6 +32,8 @@ public class TokenController {
 		log.info("Get tokens");
 		return tokenRepo.findAll();
 	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(
 			value = "/{id}", 
 			method = RequestMethod.GET, 
@@ -37,6 +42,8 @@ public class TokenController {
 		log.info("Get token");
 		return tokenRepo.findByHjid(id);
 	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(
 		    value = "/word/random/{pos}",
 		    method = RequestMethod.GET,
@@ -45,6 +52,8 @@ public class TokenController {
 		log.info("Get random word by pos");
 		return tokenRepo.findRandomWordByPos(pos);
 	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(
 		    value = "/pos",
 		    method = RequestMethod.GET,
@@ -57,6 +66,8 @@ public class TokenController {
 		}
 		return list;
 	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(
 		    value = "/word",
 		    method = RequestMethod.GET,
@@ -69,6 +80,8 @@ public class TokenController {
 		}
 		return list;
 	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(
 		    value = "/pos/{pos}",
 		    method = RequestMethod.GET,
@@ -77,6 +90,8 @@ public class TokenController {
 		log.info("Get tokens by pos");
 		return tokenRepo.findByPos(pos);
 	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(
 		    value = "/{id}/pos",
 		    method = RequestMethod.GET,
@@ -85,6 +100,8 @@ public class TokenController {
 		log.info("Get POS by tokens id");
 		return tokenRepo.findPosByTokensId(id);
 	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(
 		    value = "/random/pos",
 		    method = RequestMethod.GET,

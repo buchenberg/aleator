@@ -13,8 +13,8 @@ angular.module('aleator.token', ['ui.router'])
 
 })
 
-.controller('aleator.token.controller', ['$scope', '$http',
-function($scope, $http) {
+.controller('aleator.token.controller', ['$scope', '$http', 'appConfig',
+function($scope, $http, appConfig) {
 
   $scope.gridOptions = {
     enableFiltering: true,
@@ -58,7 +58,7 @@ function($scope, $http) {
     }
   };
 
-  $http.get('api/token').success(function(data) {
+  $http.get(appConfig.baseUrl + '/api/token').success(function(data) {
     $scope.gridOptions.data = data;
   });
 

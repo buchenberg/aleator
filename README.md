@@ -6,11 +6,11 @@ Aleator is a Spring Boot application
 ### Client
 
 ```
-cd client
+cd client && bower install
 ```
 
 ```
-bower install
+cd ..
 ```
 
 ### Server

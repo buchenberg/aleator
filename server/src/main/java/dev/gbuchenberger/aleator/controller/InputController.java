@@ -12,6 +12,7 @@ import javax.xml.bind.JAXB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ public class InputController {
 	@Autowired
 	private ApplicationContext appContext;
 	
+	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/api/input", method = RequestMethod.POST)
     public Parse postInput(@RequestBody final String input) {
 		
