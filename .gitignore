@@ -1,1 +1,4 @@
-/target/
+server/target/
+client/app/bower_components
+data/
+.project

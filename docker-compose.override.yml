@@ -1,0 +1,32 @@
+version: '2'
+services:
+  web:
+    # build:
+    #     context: ./server
+    #     dockerfile: ./.docker/server/Dockerfile
+    container_name: aleator-web
+    image: aleator
+    ports:
+        - "8081:8081"
+  client:
+    build:
+        context: ./client
+        # dockerfile: ./.docker/client/Dockerfile
+    container_name: aleator-client
+    volumes:
+      - ./client/app:/usr/share/nginx/html:ro
+    # image: aleator
+    ports:
+        - "8082:80"
+  db:
+    container_name: aleator-db
+    command: mysqld --innodb-buffer-pool-size=20M
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+        - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=aleator
+      - MYSQL_USER=aleator
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
