@@ -1,6 +1,7 @@
 <template>
   <div class="tokens">
     <h2>Tokens</h2>
+    <p>Her are all of the NLP tokens collected so far in the order in which they were collected with the parts of speech tagged. </p>
     <table class="u-full-width">
       <thead>
         <tr>
@@ -17,23 +18,6 @@
         </tr>
       </tbody>
     </table>
-    <!--<div v-for="routeArray in value">
-        <h4>Routes</h4>
-          <table class="u-full-width">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Word</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="route in routeArray">
-                <td>{{ route.method.toUpperCase() }}</td>
-                <td>{{ route.path }}</td>
-              </tr>
-            </tbody>
-          </table>
-      </div>-->
   </div>
 </template>
 <script>
