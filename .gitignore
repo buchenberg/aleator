@@ -1,4 +1,5 @@
 server/target/
-client/app/bower_components
+client2/node_modules
+client2/dist
 data/
 .project
