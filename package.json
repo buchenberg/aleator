@@ -7,10 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild:client": "cd client && npm i",
     "build:client": "cd client && npm run build",
-    "prebuild:server": "cd server && mvn clean package docker:build",
-    "build:server": "cd server && docker-compose build",
+    "build:server": "cd server && mvn clean package docker:build",
     "preinstall": "npm run build:client",
-    "install": "npm run build:server"
+    "install": "npm run build:server",
+    "start:docker": "docker-compose up --build"
   },
   "repository": {
     "type": "git",
