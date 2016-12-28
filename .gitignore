@@ -3,3 +3,4 @@ client2/node_modules
 client2/dist
 data/
 .project
+node_modules
