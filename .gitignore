@@ -1,6 +1,6 @@
 server/target/
-client2/node_modules
-client2/dist
+client/node_modules
+client/dist
 data/
 .project
 node_modules
