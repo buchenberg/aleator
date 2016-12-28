@@ -10,11 +10,11 @@ services:
         - "8081:8081"
   client:
     build:
-        context: ./client
+        context: ./client2
         # dockerfile: ./.docker/client/Dockerfile
     container_name: aleator-client
     volumes:
-      - ./client/app:/usr/share/nginx/html:ro
+      - ./client2/dist:/usr/share/nginx/html:ro
     # image: aleator
     ports:
         - "8082:80"
