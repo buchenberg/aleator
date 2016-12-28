@@ -2,3 +2,4 @@ server/target/
 client/app/bower_components
 data/
 .project
+node_modules
