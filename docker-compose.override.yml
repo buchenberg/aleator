@@ -1,21 +1,16 @@
 version: '2'
 services:
   web:
-    # build:
-    #     context: ./server
-    #     dockerfile: ./.docker/server/Dockerfile
     container_name: aleator-web
     image: aleator
     ports:
         - "8081:8081"
   client:
     build:
-        context: ./client2
-        # dockerfile: ./.docker/client/Dockerfile
+        context: ./client
     container_name: aleator-client
     volumes:
-      - ./client2/dist:/usr/share/nginx/html:ro
-    # image: aleator
+      - ./client/dist:/usr/share/nginx/html:ro
     ports:
         - "8082:80"
   db:

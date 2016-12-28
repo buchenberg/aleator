@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prebuild:client": "cd client2 && npm i",
-    "build:client": "cd client2 && npm run build",
+    "prebuild:client": "cd client && npm i",
+    "build:client": "cd client && npm run build",
     "prebuild:server": "cd server && mvn clean package docker:build",
     "build:server": "cd server && docker-compose build",
     "preinstall": "npm run build:client",
