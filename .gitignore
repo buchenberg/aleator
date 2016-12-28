@@ -1,5 +1,7 @@
 server/target/
-client/app/bower_components
+client/node_modules
+client/dist
 data/
-.project
 .DS_Store
+node_modules
+

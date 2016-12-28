@@ -44,8 +44,17 @@ public class RandomController {
 						.getPos();
 				if (!pos.matches("\\.|,|POS")) {
 					random += " ";
+				} 
+				String nextWord = tokenRepo.findRandomWordByPos(pos);
+				if (pos.equals("NNP")) {
+					random += nextWord;
+				} else {
+					random += nextWord.toLowerCase();
+
 				}
-				random += tokenRepo.findRandomWordByPos(pos);
+					
+				
+				
 			}
 		}
 		Random randObj = new Random(1, random);

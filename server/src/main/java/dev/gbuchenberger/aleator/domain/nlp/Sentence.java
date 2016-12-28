@@ -327,7 +327,7 @@ public class Sentence {
         }
 
         @Basic
-        @Column(name = "ITEMPARSE")
+        @Column(name = "ITEMPARSE", length=1024)
         public String getItemParse() {
             if (XmlAdapterUtils.isJAXBElement(String.class, new QName("", "parse"), JAXBElement.GlobalScope.class, this.getItem())) {
                 return XmlAdapterUtils.unmarshallJAXBElement(((JAXBElement<? extends String> ) this.getItem()));

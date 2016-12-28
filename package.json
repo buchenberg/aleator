@@ -1,0 +1,25 @@
+{
+  "name": "aleator",
+  "version": "1.0.0",
+  "description": "Aleator is a Spring Boot application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prebuild:client": "cd client && npm i",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && mvn clean package docker:build",
+    "preinstall": "npm run build:client",
+    "install": "npm run build:server",
+    "start:docker": "docker-compose up --build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buchenberg/aleator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/buchenberg/aleator/issues"
+  },
+  "homepage": "https://github.com/buchenberg/aleator#readme"
+}
