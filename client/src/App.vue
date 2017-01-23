@@ -18,6 +18,9 @@
             <li>
               <router-link to="/tokens">Tokens</router-link>
             </li>
+            <li>
+              <router-link to="/input">Input</router-link>
+            </li>
           </ul>
         </nav>
         <section class="ten columns">

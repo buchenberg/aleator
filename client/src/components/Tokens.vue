@@ -1,7 +1,7 @@
 <template>
   <div class="tokens">
     <h2>Tokens</h2>
-    <p>Her are all of the NLP tokens collected so far in the order in which they were collected with the parts of speech tagged. </p>
+    <p>Here are all of the NLP tokens collected so far in the order in which they were collected with the parts of speech tagged. </p>
     <table class="u-full-width">
       <thead>
         <tr>

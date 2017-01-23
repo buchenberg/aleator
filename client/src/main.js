@@ -8,6 +8,7 @@ import App from './App'
 import Home from './components/Home'
 import Random from './components/Random'
 import Tokens from './components/Tokens'
+import Input from './components/Input'
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
@@ -15,7 +16,8 @@ Vue.use(VueResource)
 const routes = [
   { path: '/home', component: Home },
   { path: '/random', component: Random },
-  { path: '/tokens', component: Tokens }
+  { path: '/tokens', component: Tokens },
+  { path: '/input', component: Input }
 ]
 
 const router = new VueRouter({
