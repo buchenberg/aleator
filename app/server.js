@@ -6,7 +6,13 @@ import { splitSentences, cutIntoFragments, foldCorpora } from './lib/cutup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const parser = new Parser({ timeout: 15000 });
+// hnrss.org and other hosts rate-limit blank/default User-Agents; identify ourselves
+const parser = new Parser({
+  timeout: 15000,
+  headers: {
+    'User-Agent': 'aleator/2.0 (+https://github.com/buchenberg/aleator; cut-up machine)',
+  },
+});
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -35,6 +41,23 @@ const SUGGESTED_FEEDS = [
   { name: 'Hackaday', url: 'https://hackaday.com/feed/', category: 'Culture' },
 ];
 
+// Rate-limited feed hosts (e.g. hnrss.org) answer 429 under repeated cuts;
+// back off and retry rather than dead-end the user's session.
+function parseFeedWithRetry(url, { tries = 3, baseDelayMs = 1500 } = {}) {
+  const attempt = async (n) => {
+    try {
+      return await parser.parseURL(url);
+    } catch (err) {
+      if (n < tries && /429/.test(String(err.message))) {
+        await new Promise((r) => setTimeout(r, baseDelayMs * n));
+        return attempt(n + 1);
+      }
+      throw err;
+    }
+  };
+  return attempt(1);
+}
+
 app.get('/api/feeds', (req, res) => {
   // group by category for <optgroup> rendering
   const grouped = SUGGESTED_FEEDS.reduce((acc, feed) => {
@@ -57,7 +80,7 @@ async function buildPool(source) {
     };
   }
   if (source.url) {
-    const feed = await parser.parseURL(source.url);
+    const feed = await parseFeedWithRetry(source.url);
     const snippets = feed.items.flatMap((item) => [
       item.title || '',
       item.contentSnippet || item.content || item.summary || '',
