@@ -12,8 +12,8 @@ and splices them together.
 
 The current implementation lives in [`app/`](app/) — a lean Node.js server with no
 database (feed text is parsed in memory on each request). The original 2017
-Java/Spring + Stanford CoreNLP implementation is kept under `client/` and `server/`
-for posterity.
+Java/Spring + Stanford CoreNLP implementation was removed when the rebuild landed;
+it still lives in this repository's git history for reference.
 
 ```
 cd app
