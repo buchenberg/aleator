@@ -1,0 +1,106 @@
+:root {
+  --bg: #f4f1ea;
+  --ink: #1a1a1a;
+  --source-a: #b3402a;
+  --source-b: #1f5aa8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 2rem 1rem;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+main {
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 2.6rem;
+  margin: 0;
+  letter-spacing: -0.05em;
+}
+
+.tagline {
+  font-style: italic;
+  color: #555;
+  margin-top: 0.25rem;
+}
+
+form {
+  margin: 2rem 0;
+  display: grid;
+  gap: 1rem;
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  padding: 0.75rem 1rem 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+legend {
+  font-weight: bold;
+  padding: 0 0.5rem;
+}
+
+select, input[type="url"], textarea, button {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #999;
+  background: #fff;
+}
+
+textarea { min-height: 3.5rem; resize: vertical; }
+
+.swatch {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  vertical-align: baseline;
+}
+.swatch-a { background: var(--source-a); }
+.swatch-b { background: var(--source-b); }
+
+#go {
+  justify-self: start;
+  cursor: pointer;
+  border: 2px solid var(--ink);
+  background: var(--ink);
+  color: var(--bg);
+}
+#go:disabled { opacity: 0.5; cursor: wait; }
+
+#fold {
+  font: inherit;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+#fold:disabled { opacity: 0.5; cursor: wait; }
+
+#output {
+  font-size: 1.25rem;
+  line-height: 1.7;
+  border-top: 1px solid #ccc;
+  padding-top: 1.5rem;
+  white-space: pre-line;
+}
+
+#output .err {
+  color: var(--source-a);
+}
+
+.frag-a { color: var(--source-a); }
+.frag-b { color: var(--source-b); }
+.frag-x { color: var(--ink); }     /* seams and third fragments */

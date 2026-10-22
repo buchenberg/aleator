@@ -1,0 +1,96 @@
+import express from 'express';
+import Parser from 'rss-parser';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { splitSentences, cutIntoFragments, foldCorpora } from './lib/cutup.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const app = express();
+const parser = new Parser({ timeout: 15000 });
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Curated feeds for the UI dropdowns; users can paste their own too.
+// Grouped by category, rendered as <optgroup> in the client.
+const SUGGESTED_FEEDS = [
+  { name: 'BBC News', url: 'https://feeds.bbci.co.uk/news/rss.xml', category: 'News' },
+  { name: 'NYT World', url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', category: 'News' },
+  { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', category: 'News' },
+  { name: 'NPR News', url: 'https://feeds.npr.org/1001/rss.xml', category: 'News' },
+  { name: 'The Guardian', url: 'https://www.theguardian.com/world/rss', category: 'News' },
+
+  { name: 'Science Daily', url: 'https://www.sciencedaily.com/rss/top/science.xml', category: 'Science' },
+  { name: 'Phys.org', url: 'https://phys.org/rss-feed/', category: 'Science' },
+  { name: 'Quanta Magazine', url: 'https://api.quantamagazine.org/feed/', category: 'Science' },
+  { name: 'NASA', url: 'https://www.nasa.gov/rss/dyn/breaking_news.rss', category: 'Science' },
+
+  { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', category: 'Tech' },
+  { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', category: 'Tech' },
+  { name: 'Hacker News', url: 'https://hnrss.org/frontpage', category: 'Tech' },
+  { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', category: 'Tech' },
+
+  { name: 'Boing Boing', url: 'https://boingboing.net/feed', category: 'Culture' },
+  { name: 'Longreads', url: 'https://longreads.com/feed/', category: 'Culture' },
+  { name: 'Hackaday', url: 'https://hackaday.com/feed/', category: 'Culture' },
+];
+
+app.get('/api/feeds', (req, res) => {
+  // group by category for <optgroup> rendering
+  const grouped = SUGGESTED_FEEDS.reduce((acc, feed) => {
+    (acc[feed.category] ??= []).push({ name: feed.name, url: feed.url });
+    return acc;
+  }, {});
+  res.json({ feeds: grouped });
+});
+
+/**
+ * Turn a source spec ({url} or {text}) into a pool of clause fragments.
+ * Feeds contribute every item's title and summary; pasted text is used whole.
+ * Returns { title, fragments } so the UI can label each side.
+ */
+async function buildPool(source) {
+  if (source.text && source.text.trim()) {
+    return {
+      title: 'pasted text',
+      fragments: splitSentences(source.text).flatMap(cutIntoFragments),
+    };
+  }
+  if (source.url) {
+    const feed = await parser.parseURL(source.url);
+    const snippets = feed.items.flatMap((item) => [
+      item.title || '',
+      item.contentSnippet || item.content || item.summary || '',
+    ]);
+    return {
+      title: feed.title || new URL(source.url).hostname,
+      fragments: splitSentences(snippets.join(' ')).flatMap(cutIntoFragments),
+    };
+  }
+  throw new Error('Source needs either a url or text');
+}
+
+app.post('/api/cutup', async (req, res) => {
+  const { sourceA, sourceB, lines } = req.body || {};
+  if (!sourceA || !sourceB) {
+    return res.status(400).json({ error: 'Both sourceA and sourceB are required' });
+  }
+  try {
+    const [sideA, sideB] = await Promise.all([buildPool(sourceA), buildPool(sourceB)]);
+    if (sideA.fragments.length === 0 || sideB.fragments.length === 0) {
+      return res.status(422).json({ error: 'One of the sources produced no usable text' });
+    }
+    const fragments = foldCorpora(sideA.fragments, sideB.fragments, {
+      lines: Math.min(Math.max(Number(lines) || 8, 1), 24),
+    });
+    res.json({ fragments, feeds: [sideA.title, sideB.title] });
+  } catch (err) {
+    console.error('cutup failed:', err.message);
+    res.status(502).json({ error: `Could not process sources: ${err.message}` });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`aleator cut-up machine listening on http://localhost:${PORT}`);
+});
