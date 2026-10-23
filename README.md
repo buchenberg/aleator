@@ -15,13 +15,16 @@ The implementation lives in [`app/`](app/) — a lean Node.js server with no
 database. Install and start:
 
 ```
-cd app && npm install && npm start   # → http://localhost:3000
+cd app
+npm install
+npm start   # → http://localhost:3000  (the client ships prebuilt; npm run build rebuilds it)
 ```
 
-Deeper development details (API reference, configuration, project layout)
-live in [DEVELOPMENT.md](DEVELOPMENT.md). The original 2017 Java/Spring +
-Stanford CoreNLP implementation was removed when the rebuild landed; it
-still lives in this repository's git history for reference.
+Built with Vue 3 + Vite + Tailwind. Deeper development details (API
+reference, configuration, project layout) live in
+[DEVELOPMENT.md](DEVELOPMENT.md). The original 2017 Java/Spring +
+Stanford CoreNLP implementation was removed when the rebuild landed;
+it still lives in this repository's git history for reference.
 
 ## Using the machine
 

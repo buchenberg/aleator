@@ -8,11 +8,18 @@ the instrument itself is in the [README](README.md).
 
 ```
 app/
-  server.js          Express server: static client + JSON API
+  server.js          Express server: built client + JSON API
+  vite.config.js     Vite (Vue plugin, Tailwind v4 plugin, /api proxy for dev)
   lib/
-    cutup.js         split / cut / fold pipeline, CUT_LEVELS registry, seeded PRNG
+    cutup.js         split / cut / fold pipeline, CUT_LEVELS registry, seeded PRNG, permutations
     articles.js      full-article fetching + Readability extraction
-  public/            the client (no build step): index.html, main.js, style.css
+  web/               the client: Vue 3 + Vite + Tailwind
+    index.html
+    src/App.vue      orchestration: form state, run/fold/reroll, permalinks, stashing
+    src/components/  SourcePicker, PermDial, OutputPanel, HordeDrawer, AboutPanel
+    src/store/       horde.js (localStorage stash), toast.js
+    src/lib/         dice.js, audio.js (typewriter WebAudio)
+    dist/            built client (committed — npm start serves it directly)
 docs/
   ROADMAP.md         shipped features + ideas on the bench
 ```
@@ -22,13 +29,20 @@ docs/
 ```
 cd app
 npm install
-npm start     # node server.js → http://localhost:3000
-npm run dev   # node --watch: server restarts on edits
+npm start     # node server.js → http://localhost:3000 (serves committed web/dist)
 ```
 
-The client files are served statically per request — no build step, no
-restart needed for `index.html` / `main.js` / `style.css` changes.
-`PORT` (default 3000) is the only environment knob.
+Client development:
+
+```
+npm run dev:server   # server on :3000, watching
+npm run dev:web      # Vite on :5173, proxies /api → :3000, hot-reloads
+npm run build        # rebuild web/dist for serving on :3000
+```
+
+The API is served from the same origin in both modes. After a client
+change, `npm start` reflects it only after `npm run build` (or use the
+Vite dev server). `PORT` (default 3000) is the only server env knob.
 
 ## Stopping / restarting
 

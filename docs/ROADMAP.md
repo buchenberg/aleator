@@ -6,8 +6,10 @@ below the fold — the live feature set is described in the main
 
 ## Shipped
 
-- ✅ **Curated feed gallery** — named feeds grouped by category, `<optgroup>`
-  dropdowns for both sources (2026-10 revival)
+- ✅ **Vue 3 + Vite + Tailwind client** — the instrument's glass rebuilt on a
+  component architecture (2026-10)
+- ✅ **Curated feed gallery** — named feeds grouped by category, dropdowns for
+  both sources (2026-10 revival)
 - ✅ **Fold-it-in-again** — recursive Burroughs fold: each cut-up becomes the
   next run's opposing page
 - ✅ **Cut depth** — `clause / phrase / word` cut levels via the `CUT_LEVELS`
@@ -21,11 +23,11 @@ below the fold — the live feature set is described in the main
 
 ## The lineage (Burroughs / Gysin techniques)
 
-- [ ] **Permutations** — Gysin's own variation: type one sentence, receive all
-  of its word-reorderings, six passes like his permuted poems. Small, pure
-  UI, very canon.
-- [ ] **The word horde** — bank every generated cut-up (localStorage) as a
-  personal stockpile, then fold new feeds against *your own* hoard later.
+- ✅ **Permutations** — Gysin's dial: one phrase, every word takes every
+  position (`POST /api/permute`)
+- ✅ **The word horde** — stash fragments, lines or whole compositions
+  (localStorage, capped + deduped), manage them in the horde drawer, and
+  fold any source against your own accumulated cuts
 - [ ] **Third-mind batching** — more than two sources (3–5 feeds) with
   per-source weights; the fold becomes composition rather than a duet.
 - [ ] **Divination mode** — one line per die face ⚀–⚅, laid out like a tarot

@@ -6,7 +6,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "dev:web": "vite",
+    "build": "vite build"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
@@ -14,6 +16,13 @@
     "express": "^4.21.2",
     "linkedom": "^0.18.14",
     "marked": "^18.1.1",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "vue": "^3.5.44"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.5"
   }
 }

@@ -18,7 +18,17 @@ const parser = new Parser({
 });
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// built client (Vite -> web/dist, committed so npm start works out of the box)
+const CLIENT_DIST = path.join(__dirname, 'web', 'dist');
+const clientRoot = fs.existsSync(CLIENT_DIST) ? CLIENT_DIST : path.join(__dirname, 'public');
+
+app.use(express.static(clientRoot));
+app.get(/^\/(?!api\/).*/, (req, res) => {
+  res.sendFile(path.join(clientRoot, 'index.html'), (err) => {
+    if (err) res.status(503).send('client not built — run `npm run build` in app/');
+  });
+});
 
 // Curated feeds for the UI dropdowns; users can paste their own too.
 // Grouped by category, rendered as <optgroup> in the client.

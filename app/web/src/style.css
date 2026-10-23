@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+
+/* ── the letterpress theme ─────────────────────────────────────────────── */
+@theme {
+  --color-paper: #f4f1ea;
+  --color-ink: #1a1a1a;
+  --color-source-a: #b3402a;
+  --color-source-b: #1f5aa8;
+  --font-serif: Georgia, 'Times New Roman', serif;
+}
+
+/* die faces (⚀–⚅) sit high in most fonts; pull them to the baseline */
+.die-roll {
+  font-size: 1.1em;
+  vertical-align: -0.12em;
+  margin-right: 0.1em;
+}
+
+/* a fragment briefly highlighted right after being hoarded */
+.stashed {
+  animation: stash-flash 0.9s ease-out;
+}
+@keyframes stash-flash {
+  0% { background: rgba(0, 0, 0, 0.18); }
+  100% { background: transparent; }
+}
+
+.horde-enter-active, .horde-leave-active { transition: opacity 0.15s ease; }
+.horde-enter-from, .horde-leave-to { opacity: 0; }
+
+/* About panel: the server-rendered README keeps its own headings/code/table styles */
+.about-shell h1 { display: none; }
+.about-shell h2 { font-size: 1.15rem; margin-top: 2rem; letter-spacing: -0.02em; font-weight: bold; }
+.about-shell h3 { font-size: 1rem; margin-top: 1.5rem; font-weight: bold; }
+.about-shell p, .about-shell li { line-height: 1.65; color: #333; margin-top: 0.5rem; }
+.about-shell ul, .about-shell ol { padding-left: 1.25rem; list-style: disc; }
+.about-shell ol { list-style: decimal; }
+.about-shell code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+.about-shell pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  margin-top: 0.5rem;
+}
+.about-shell pre code { background: transparent; padding: 0; }
+.about-shell table { border-collapse: collapse; margin: 1rem 0; }
+.about-shell th, .about-shell td { border: 1px solid #ccc; padding: 0.3rem 0.6rem; font-size: 0.9em; text-align: left; }
+.about-shell th { background: rgba(0, 0, 0, 0.04); }
+.about-shell a { color: var(--color-source-b); }
