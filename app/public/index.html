@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>aleator — cut-up machine</title>
+  <title>aleator 🎲 — cut-up machine</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%B2%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <main>
-    <h1>aleator</h1>
+    <h1>aleator <span class="die" aria-hidden="true">🎲</span></h1>
     <p class="tagline">fold two feed sources into one cut-up, William S. Burroughs style.</p>
 
     <form id="cutup-form">
@@ -27,6 +28,17 @@
       </fieldset>
 
       <label for="lines">Lines: <input type="number" id="lines" min="1" max="24" value="8"></label>
+      <label for="cut">Cut depth:
+        <select id="cut">
+          <option value="clause">clause</option>
+          <option value="phrase" selected>phrase</option>
+          <option value="word">word shrapnel</option>
+        </select>
+      </label>
+      <div class="toggles">
+        <label><input type="checkbox" id="fulltext"> Pull full articles</label>
+        <label><input type="checkbox" id="typewriter" checked> Typewriter</label>
+      </div>
       <button type="submit" id="go">Cut it up</button>
     </form>
 

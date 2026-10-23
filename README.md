@@ -1,7 +1,8 @@
-# aleator
+# aleator 🎲
 
 Aleator is a Burroughs-style **cut-up machine**: pick two text sources, and it folds
-their sentences and clauses into one random, chimeric text.
+their sentences and clauses into one random, chimeric text. *Aleator* — from Latin
+*aleator*, "dice player" — wears the 🎲 for a reason: every cut is a roll.
 
 William S. Burroughs developed the cut-up method in the 1950s–60s, slicing pages of
 text and re-arranging the pieces to reveal new meaning. This app does it with RSS
@@ -29,10 +30,23 @@ Then open http://localhost:3000.
    grouped by category (News, Science, Tech, Culture), or paste your own feed URL,
    or paste raw text — each source independently uses whichever you filled in
    (text beats URL beats dropdown).
-2. Hit **Cut it up**. The output renders line by line, with each fragment
-   color-coded by origin: red = Source A, blue = Source B, black = seams and
-   wildcards.
-3. Hit **Fold it in again** to feed the *current output* back in as Source A
+2. Hit **Cut it up**. Each run rolls one of the die faces (⚀–⚅) as its mark,
+   and the output renders line by line, with each fragment color-coded by
+   origin: red = Source A, blue = Source B, black = seams and wildcards.
+   Options in the form:
+   - **Pull full articles** — fold whole article bodies (via
+     [Readability](https://github.com/mozilla/readability)) rather than titles
+     and summaries. Slower; sharper fragments.
+   - **Typewriter** — the cut-up is typed out on an animated carriage with key
+     clacks and a return bell (skipped automatically under
+     `prefers-reduced-motion`).
+3. Every run shows a **🎲 seed chip**. When both sources are feed URLs, thank
+   you **permalinks**: clicking copies a URL that re-runs the exact same
+   cut-up later (`?seed=…&fa=…&fb=…&cut=…&lines=…`). Opening the link replays
+   it automatically. Same seed + same feed content → byte-identical text;
+   feeds drift over time, so old links re-play against the current front
+   pages — the seed remembers the cut, the web remembers the words.
+4. Hit **Fold it in again** to feed the *current output* back in as Source A
    against your unchanged Source B — Burroughs' recursive fold-in technique.
    Each pass stacks (`fold 2: last cut-up × …`) and the text gets more
    chimeric as it repeats.
@@ -42,8 +56,11 @@ Then open http://localhost:3000.
 - `GET /api/feeds` — curated feeds as `{ feeds: { [category]: [{ name, url }] } }`
   for `<optgroup>` rendering. Edit the `SUGGESTED_FEEDS` array in
   `app/server.js` to change the list.
-- `POST /api/cutup` — body `{ sourceA, sourceB, lines }` (lines: 1–24, default 8),
-  where each source is `{ url }` or `{ text }`. Returns:
+- `POST /api/cutup` — body `{ sourceA, sourceB, lines, cut, seed }` (lines:
+  1–24, default 8; cut: `'clause' | 'phrase' | 'word'`, default `'phrase'`;
+  seed: any string/number, replays the same cut-up), where each source is
+  `{ url }` or `{ text }` — URL sources take an optional `full: true` to pull
+  whole article bodies. Returns:
 
   ```json
   {
@@ -135,13 +152,35 @@ Open Culture — [Bowie, Cobain & Yorke with the cut-up technique](https://www.o
 
 ## How the cut-up works
 
-`app/lib/cutup.js`:
+`app/lib/cutup.js` and `app/lib/articles.js`:
 
-1. **Split** — sources (feed titles + summaries, or pasted text) are cleaned of
-   HTML, split into sentences with [compromise](https://github.com/spencermountain/compromise).
-2. **Cut** — sentences are cut into clause-sized fragments at commas, dashes,
-   colons and coordinating conjunctions; over-long fragments get halved so
-   nothing resists the scissors.
-3. **Fold** — fragments are drawn alternately from the two pools and stitched
-   with random seams (`, ` / ` — ` / sentence-ending), with case fixes applied
-   at the seams; ~35% of lines get an extra third fragment from A or B.
+1. **Split** — sources (feed titles + summaries, optionally whole articles
+   pulled via Readability, or pasted text) are cleaned and split into
+   sentences with [compromise](https://github.com/spencermountain/compromise).
+2. **Cut** — sentences are cut into fragment-sized pieces according to the
+   configured **cut depth** (see below); over-long fragments are cut through at
+   a `maxWords` fence so nothing resists the scissors.
+3. **Fold** — fragments are drawn alternately from the two pools by a seeded
+   PRNG (mulberry32) and stitched with random seams (`, ` / ` — ` /
+   sentence-ending), with case fixes applied at the seams; ~35% of lines get
+   an extra third fragment from A or B. Pass the same `seed` to replay any
+   fold exactly.
+
+### Cut depth
+
+How far apart the scissors sit is configurable — pass it in the UI ("Cut
+depth" selector) or as the `cut` body parameter on `POST /api/cutup`:
+
+| Level         | Terrain                                                              |
+|---------------|----------------------------------------------------------------------|
+| `clause`      | Sentences sliced only at clause boundaries — Burroughs' broad, stately cuts |
+| `phrase` (default) | Clause cuts **plus** adverbial/relational joints (*after*, *with*, *apparently*…), force-halved at a 7-word fence |
+| `word`        | Maximum bleed: no grammar rules, pieces of 1–3 words stitched against each other |
+
+The depths live in one obvious place — the `CUT_LEVELS` registry at the top of
+`app/lib/cutup.js` — each level defining its `separators` regex (the allowed cut
+points) and `maxWords` fence. To add your own depth (say, "sever": 1-word
+slots), add an entry to the registry and it is immediately served by the API —
+and add the matching `<option>` to the "Cut depth" selector in
+`app/public/index.html` if it belongs on screen. Unknown level names quietly
+fall back to `phrase`.

@@ -2,7 +2,8 @@ import express from 'express';
 import Parser from 'rss-parser';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { splitSentences, cutIntoFragments, foldCorpora } from './lib/cutup.js';
+import { splitSentences, cutIntoFragments, foldCorpora, CUT_LEVELS, hashSeed, mulberry32 } from './lib/cutup.js';
+import { articlePool } from './lib/articles.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -72,41 +73,59 @@ app.get('/api/feeds', (req, res) => {
  * Feeds contribute every item's title and summary; pasted text is used whole.
  * Returns { title, fragments } so the UI can label each side.
  */
-async function buildPool(source) {
+async function buildPool(source, cutLevel, rng) {
+  const cutOpts = { level: cutLevel, rng };
   if (source.text && source.text.trim()) {
     return {
       title: 'pasted text',
-      fragments: splitSentences(source.text).flatMap(cutIntoFragments),
+      fragments: splitSentences(source.text).flatMap((s) => cutIntoFragments(s, cutOpts)),
     };
   }
   if (source.url) {
     const feed = await parseFeedWithRetry(source.url);
-    const snippets = feed.items.flatMap((item) => [
-      item.title || '',
-      item.contentSnippet || item.content || item.summary || '',
-    ]);
+    const snippets = feed.items.map(
+      (item) => [item.title || '', item.contentSnippet || item.content || item.summary || ''].join(' '),
+    );
+    // optional full-article pull: whole article bodies, not just teasers
+    if (source.full) {
+      const seen = new Set();
+      const links = feed.items
+        .filter((item) => item.link && !seen.has(item.link) && seen.add(item.link))
+        .map((item) => item.link);
+      const articles = await articlePool(links);
+      snippets.push(...articles);
+    }
     return {
       title: feed.title || new URL(source.url).hostname,
-      fragments: splitSentences(snippets.join(' ')).flatMap(cutIntoFragments),
+      fragments: splitSentences(snippets.join(' ')).flatMap((s) => cutIntoFragments(s, cutOpts)),
     };
   }
   throw new Error('Source needs either a url or text');
 }
 
 app.post('/api/cutup', async (req, res) => {
-  const { sourceA, sourceB, lines } = req.body || {};
+  const { sourceA, sourceB, lines, cut, seed } = req.body || {};
   if (!sourceA || !sourceB) {
     return res.status(400).json({ error: 'Both sourceA and sourceB are required' });
   }
+  // unknown cut levels quietly fall back to the middle ground
+  const cutLevel = Object.keys(CUT_LEVELS).includes(cut) ? cut : 'phrase';
+  // seeded runs replay: same seed + same corpus → byte-identical cut-up
+  const token = seed === undefined || seed === null || seed === '' ? null : String(seed);
+  const rng = token === null ? null : mulberry32(hashSeed(token));
   try {
-    const [sideA, sideB] = await Promise.all([buildPool(sourceA), buildPool(sourceB)]);
+    const [sideA, sideB] = await Promise.all([
+      buildPool(sourceA, cutLevel, rng),
+      buildPool(sourceB, cutLevel, rng),
+    ]);
     if (sideA.fragments.length === 0 || sideB.fragments.length === 0) {
       return res.status(422).json({ error: 'One of the sources produced no usable text' });
     }
     const fragments = foldCorpora(sideA.fragments, sideB.fragments, {
       lines: Math.min(Math.max(Number(lines) || 8, 1), 24),
+      rng,
     });
-    res.json({ fragments, feeds: [sideA.title, sideB.title] });
+    res.json({ fragments, feeds: [sideA.title, sideB.title], seed: token });
   } catch (err) {
     console.error('cutup failed:', err.message);
     res.status(502).json({ error: `Could not process sources: ${err.message}` });

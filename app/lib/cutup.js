@@ -24,20 +24,93 @@ export function splitSentences(text) {
 }
 
 /**
- * Cut a sentence further into clause-sized chunks at commas, dashes,
- * colons and coordinating conjunctions. This is where the "cut" in
- * cut-up happens — smaller pieces mean more chaotic folds.
+ * Cut-depth registry — the generator's tuning panel. Each level defines:
+ *   separators — regex marking allowed cut points within a sentence
+ *   maxWords   — fence length; fragments longer than this are cut through
+ * Add a level here and it is immediately available to the API and client.
  */
-export function cutIntoFragments(sentence) {
-  const parts = sentence.split(/(?<=[,;:—–])\s+|\s+(?:and|but|or|while|although|because|when|if|that|which)\s+/i);
-  const fragments = parts.map((p) => p.trim()).filter((p) => p.length > 2);
-  // if the sentence refuses to be cut, at least trim it into bite-size halves
-  if (fragments.length === 1 && fragments[0].split(' ').length > 14) {
-    const words = fragments[0].split(' ');
-    const mid = Math.floor(words.length / 2);
-    return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+export const CUT_LEVELS = {
+  // sentence → clauses only; Burroughs' broadest, least violent cuts
+  clause: {
+    separators: /(?<=[,;:—–])\s+|\s+(?:and|but|or|while|although|because|when|if|that|which|who)\s+/i,
+    maxWords: 16,
+  },
+  // clauses → phrases; the middle ground (previous default)
+  phrase: {
+    separators: /(?<=[,;:—–])\s+|\s+(?:and|but|or|while|although|because|when|if|that|which|who|also|however|despite|meanwhile|apparently|after|before|between|during|through|across|with|without|into|from)\s+/i,
+    maxWords: 7,
+  },
+  // phrases → shrapnel: no grammar respected, pieces of 1–3 words
+  word: {
+    separators: null,
+    maxWords: 3,
+  },
+};
+
+/**
+ * Cut one sentence into fragment-sized pieces according to a cut level
+ * ({@link CUT_LEVELS}). This is where the "cut" in cut-up happens —
+ * smaller pieces mean more chaotic folds.
+ */
+export function cutIntoFragments(sentence, { level = 'phrase', rng } = {}) {
+  const { separators, maxWords } = CUT_LEVELS[level] ?? CUT_LEVELS.phrase;
+
+  if (!separators) {
+    // word shrapnel: chunk every word into groups of 1–maxWords on the fly
+    return chunkWords(sentence.split(/\s+/), maxWords, rng ?? Math.random);
   }
-  return fragments.length > 0 ? fragments : [sentence];
+
+  const parts = sentence.split(separators).map((p) => p.trim());
+  // cut through any fragment long enough to brazen out the fence
+  return parts.flatMap((f) => {
+    if (f.length <= 2) return [];
+    const words = f.split(/\s+/);
+    if (words.length <= maxWords) return [f];
+    const pieces = [];
+    for (let i = 0; i < words.length; i += maxWords) {
+      pieces.push(words.slice(i, i + maxWords).join(' '));
+    }
+    return pieces;
+  });
+}
+
+function chunkWords(words, maxWords, r) {
+  const out = [];
+  let i = 0;
+  while (i < words.length) {
+    const size = 1 + Math.floor(r() * maxWords); // 1..maxWords
+    out.push(words.slice(i, i + size).join(' '));
+    i += size;
+  }
+  return out.filter((w) => w.length > 2);
+}
+
+/**
+ * Seeded PRNG (mulberry32) so any cut-up can be replayed from its roll.
+ * Pair with {@link hashSeed} to turn a shareable token into a stream:
+ * `mulberry32(hashSeed(token))`.
+ */
+export function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** FNV-1a: any seed string (or number) → uint32 for {@link mulberry32}. */
+export function hashSeed(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value >>> 0;
+  if (/^\d+$/.test(String(value))) return Number(String(value)) >>> 0;
+  const str = String(value);
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash;
 }
 
 /**
@@ -49,12 +122,16 @@ export function cutIntoFragments(sentence) {
  * is the seam glued in front of the piece (empty for the first) and
  * `side` is 'a' | 'b' | 'x' (x = extra third fragment, chaotic). The
  * plain joined sentence is also provided as `text`.
+ *
+ * `rng` (a () => float in [0,1)) makes the whole fold deterministic and
+ * replayable from a seed; pass `mulberry32(hashSeed(seed))`.
  */
-export function foldCorpora(poolA, poolB, { lines = 8 } = {}) {
+export function foldCorpora(poolA, poolB, { lines = 8, rng } = {}) {
+  const r = rng ?? Math.random;
   const out = [];
   for (let i = 0; i < lines; i++) {
-    const a = pick(poolA);
-    const b = pick(poolB);
+    const a = pick(poolA, r);
+    const b = pick(poolB, r);
     if (!a && !b) break;
 
     const order = i % 2 === 0 ? [a, b] : [b, a];
@@ -62,15 +139,15 @@ export function foldCorpora(poolA, poolB, { lines = 8 } = {}) {
     const pieces = [];
     order.forEach((frag, j) => {
       if (!frag) return;
-      const lead = pieces.length === 0 ? '' : pickSeam(pieces[pieces.length - 1].text);
+      const lead = pieces.length === 0 ? '' : pickSeam(pieces[pieces.length - 1].text, r);
       pieces.push({ lead, text: normalizeEdge(frag), side: j === 0 ? sides[0] : sides[1] });
     });
 
     // randomly stitch a third fragment in for extra chaos
-    if (Math.random() < 0.35) {
-      const third = pick(i % 2 === 0 ? poolA : poolB);
+    if (r() < 0.35) {
+      const third = pick(i % 2 === 0 ? poolA : poolB, r);
       if (third && pieces.length > 0) {
-        const lead = pickSeam(pieces[pieces.length - 1].text);
+        const lead = pickSeam(pieces[pieces.length - 1].text, r);
         pieces.push({ lead, text: normalizeEdge(third), side: 'x' });
       }
     }
@@ -95,17 +172,17 @@ export function foldCorpora(poolA, poolB, { lines = 8 } = {}) {
   return out;
 }
 
-function pick(pool) {
+function pick(pool, r) {
   if (!pool || pool.length === 0) return null;
   // weight toward substantial fragments: drop tiny cut-up debris
   const candidates = pool.filter((f) => f.length > 12);
   const poolToUse = candidates.length > 0 ? candidates : pool;
-  return poolToUse[Math.floor(Math.random() * poolToUse.length)];
+  return poolToUse[Math.floor(r() * poolToUse.length)];
 }
 
-function pickSeam(prevText) {
+function pickSeam(prevText, r) {
   if (/[.!?]$/.test(prevText)) return ' ';
-  return Math.random() < 0.7 ? ', ' : ' — ';
+  return r() < 0.7 ? ', ' : ' — ';
 }
 
 function normalizeEdge(fragment) {
