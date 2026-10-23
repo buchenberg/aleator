@@ -27,6 +27,7 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 init();
 
 async function init() {
+  loadAbout();
   try {
     const res = await fetch('/api/feeds');
     const { feeds } = await res.json();
@@ -295,6 +296,20 @@ function returnBell() {
   bell.connect(gain).connect(ctx.destination);
   bell.start();
   bell.stop(ctx.currentTime + 0.3);
+}
+
+/* ── about section (fetches the rendered README) ────────────────────────── */
+
+async function loadAbout() {
+  const body = document.querySelector('.about-body');
+  try {
+    const res = await fetch('/api/about');
+    if (!res.ok) throw new Error(res.statusText);
+    const { html } = await res.json();
+    body.innerHTML = html;
+  } catch {
+    body.innerHTML = '<p>The machine\'s documentation could not be loaded — see README.md.</p>';
+  }
 }
 
 /* ── permalinks ─────────────────────────────────────────────────────────── */

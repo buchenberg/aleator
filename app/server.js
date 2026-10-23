@@ -1,4 +1,6 @@
 import express from 'express';
+import { marked } from 'marked';
+import fs from 'node:fs';
 import Parser from 'rss-parser';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -66,6 +68,17 @@ app.get('/api/feeds', (req, res) => {
     return acc;
   }, {});
   res.json({ feeds: grouped });
+});
+
+// The README is the single source of truth: the page's About section
+// renders it verbatim, so docs and UI can never drift apart.
+app.get('/api/about', (req, res) => {
+  try {
+    const md = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
+    res.json({ html: marked.parse(md) });
+  } catch (err) {
+    res.status(404).json({ error: 'README not available' });
+  }
 });
 
 /**
