@@ -177,7 +177,7 @@ function stashPerm(text) {
 <template>
   <main class="max-w-2xl mx-auto px-4 py-10">
     <h1 class="text-5xl tracking-tight font-serif m-0">
-      <span class="die text-[0.55em] align-baseline mr-1" aria-hidden="true">🎲</span>aleator
+      <span class="die text-[0.55em] align-baseline mr-1 select-none" aria-hidden="true">🎲</span>aleator
     </h1>
     <p class="italic text-neutral-600 mt-1">
       fold two feed sources into one cut-up, William S. Burroughs style.

@@ -103,18 +103,23 @@ app.get('/api/about', (req, res) => {
  * Feeds contribute every item's title and summary; pasted text is used whole.
  * Returns { title, fragments } so the UI can label each side.
  */
+// glyphs that only arrive by copying UI chrome (stash ✚, die faces, dice);
+// they must never enter the corpus — strip them from any ingested text
+const UI_GLYPHS = /[✚⚀⚁⚂⚃⚄⚅🎲✓]/gu;
+const launder = (t) => t.replace(UI_GLYPHS, '').replace(/[ \t]+/g, ' ');
+
 async function buildPool(source, cutLevel, rng) {
   const cutOpts = { level: cutLevel, rng };
   if (source.text && source.text.trim()) {
     return {
       title: 'pasted text',
-      fragments: splitSentences(source.text).flatMap((s) => cutIntoFragments(s, cutOpts)),
+      fragments: splitSentences(launder(source.text)).flatMap((s) => cutIntoFragments(s, cutOpts)),
     };
   }
   if (source.url) {
     const feed = await parseFeedWithRetry(source.url);
     const snippets = feed.items.map(
-      (item) => [item.title || '', item.contentSnippet || item.content || item.summary || ''].join(' '),
+      (item) => launder([item.title || '', item.contentSnippet || item.content || item.summary || ''].join(' ')).trim(),
     );
     // optional full-article pull: whole article bodies, not just teasers
     if (source.full) {

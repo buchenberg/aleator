@@ -115,7 +115,7 @@ const title = computed(() =>
       <p class="italic text-neutral-600 text-base">
         <button
           type="button"
-          class="die-roll cursor-pointer hover:scale-125 transition-transform"
+          class="die-roll cursor-pointer hover:scale-125 transition-transform select-none"
           title="roll again (same settings, new seed)"
           @click="emit('reroll')"
         >{{ rollDie() }}</button>
@@ -140,7 +140,7 @@ const title = computed(() =>
         </template>
         <button
           type="button"
-          class="absolute right-0 top-0 text-xs text-neutral-400 opacity-0 group-hover:opacity-100 hover:text-ink cursor-pointer"
+          class="absolute right-0 top-0 text-xs text-neutral-400 opacity-0 group-hover:opacity-100 hover:text-ink cursor-pointer select-none"
           title="stash this line in the word horde"
           @click="emit('stash-line', line.pieces.map((p) => p.lead + p.text).join(''))"
         >✚</button>
