@@ -11,18 +11,17 @@ and splices them together.
 
 ## Running
 
-The current implementation lives in [`app/`](app/) — a lean Node.js server with no
-database (feed text is parsed in memory on each request). The original 2017
-Java/Spring + Stanford CoreNLP implementation was removed when the rebuild landed;
-it still lives in this repository's git history for reference.
+The implementation lives in [`app/`](app/) — a lean Node.js server with no
+database. Install and start:
 
 ```
-cd app
-npm install
-npm start
+cd app && npm install && npm start   # → http://localhost:3000
 ```
 
-Then open http://localhost:3000.
+Deeper development details (API reference, configuration, project layout)
+live in [DEVELOPMENT.md](DEVELOPMENT.md). The original 2017 Java/Spring +
+Stanford CoreNLP implementation was removed when the rebuild landed; it
+still lives in this repository's git history for reference.
 
 ## Using the machine
 
@@ -50,38 +49,6 @@ Then open http://localhost:3000.
    against your unchanged Source B — Burroughs' recursive fold-in technique.
    Each pass stacks (`fold 2: last cut-up × …`) and the text gets more
    chimeric as it repeats.
-
-## API
-
-- `GET /api/feeds` — curated feeds as `{ feeds: { [category]: [{ name, url }] } }`
-  for `<optgroup>` rendering. Edit the `SUGGESTED_FEEDS` array in
-  `app/server.js` to change the list.
-- `POST /api/cutup` — body `{ sourceA, sourceB, lines, cut, seed }` (lines:
-  1–24, default 8; cut: `'clause' | 'phrase' | 'word'`, default `'phrase'`;
-  seed: any string/number, replays the same cut-up), where each source is
-  `{ url }` or `{ text }` — URL sources take an optional `full: true` to pull
-  whole article bodies. Returns:
-
-  ```json
-  {
-    "feeds": ["BBC News", "Hacker News: Front Page"],
-    "fragments": [
-      {
-        "text": "Assembled plain-text line.",
-        "pieces": [
-          { "lead": "",      "text": "Assembled plain-text line.", "side": "a" },
-          { "lead": ", ",    "text": "second fragment",            "side": "b" },
-          { "lead": " — ",   "text": "third fragment.",            "side": "x" }
-        ]
-      }
-    ]
-  }
-  ```
-
-  Each fragment's `side` is its provenance — `a` or `b` for the two sources,
-  `x` for the extra third fragment randomly stitched in for chaos — so clients
-  can color-code which source each piece came from. `lead` is the seam glued in
-  front of each piece (empty for the first), formatted for neutral styling.
 
 ## The history of the cut-up
 
