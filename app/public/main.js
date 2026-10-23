@@ -180,7 +180,11 @@ async function renderWrapped(data, { folded = false } = {}) {
   const label = folded
     ? `fold ${fold.count}: last cut-up × ${data.feeds[1]}`
     : `${data.feeds[0]} × ${data.feeds[1]}`;
-  title.textContent = `${rollDie()}  ${label}`;
+  const dieRoll = document.createElement('span');
+  dieRoll.className = 'die-roll';
+  dieRoll.textContent = rollDie();
+  title.appendChild(dieRoll);
+  title.appendChild(document.createTextNode('  ' + label));
   OUTPUT.appendChild(title);
 
   const meta = permalink(data);
