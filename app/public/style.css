@@ -34,7 +34,7 @@ h1 {
 
 .die {
   font-size: 0.55em;
-  vertical-align: -0.03em;
+  vertical-align: baseline;
   margin-right: 0.12em;
 }
 
