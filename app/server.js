@@ -23,7 +23,14 @@ app.use(express.json());
 const CLIENT_DIST = path.join(__dirname, 'web', 'dist');
 const clientRoot = fs.existsSync(CLIENT_DIST) ? CLIENT_DIST : path.join(__dirname, 'public');
 
-app.use(express.static(clientRoot));
+app.use(express.static(clientRoot, {
+  setHeaders(res, filePath) {
+    // the hash-named bundles never change content; the HTML must revalidate
+    // so a rebuild is picked up instead of requesting a dead asset hash
+    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+    else if (/[/\\]assets[/\\]/.test(filePath)) res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  },
+}));
 app.get(/^\/(?!api\/).*/, (req, res) => {
   res.sendFile(path.join(clientRoot, 'index.html'), (err) => {
     if (err) res.status(503).send('client not built — run `npm run build` in app/');

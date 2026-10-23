@@ -1,4 +1,6 @@
 <script setup>
+import { computed } from 'vue';
+
 const props = defineProps({
   side: { type: String, required: true },
   label: { type: String, required: true },
@@ -11,7 +13,7 @@ const url = defineModel('url', { type: String, default: '' });
 const text = defineModel('text', { type: String, default: '' });
 const useHordeFlag = defineModel('useHorde', { type: Boolean, default: false });
 
-const swatch = side === 'a' ? 'bg-source-a' : 'bg-source-b';
+const swatch = computed(() => (props.side === 'a' ? 'bg-source-a' : 'bg-source-b'));
 </script>
 
 <template>
