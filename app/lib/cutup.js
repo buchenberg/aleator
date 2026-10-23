@@ -88,7 +88,7 @@ function chunkWords(words, maxWords, r) {
 /**
  * Seeded PRNG (mulberry32) so any cut-up can be replayed from its roll.
  * Pair with {@link hashSeed} to turn a shareable token into a stream:
- * `mulberry32(hashSeed(token))`.
+ * `mulberry32(hashSeed(seed))`.
  */
 export function mulberry32(seed) {
   let a = seed >>> 0;
@@ -111,6 +111,25 @@ export function hashSeed(value) {
     hash = Math.imul(hash, 0x01000193) >>> 0;
   }
   return hash;
+}
+
+/**
+ * Gysin's permutations: every word visits every position. Each pass
+ * rotates the phrase by one word, so a phrase of n words yields n lines
+ * that each contain all n words — the phrase reading itself.
+ */
+export function permute(text) {
+  const stripped = text.trim().replace(/[.!?…]+$/, '');
+  const words = stripped.split(/\s+/).filter(Boolean);
+  if (words.length <= 1) return words;
+  const out = [];
+  for (let shift = 0; shift < words.length; shift++) {
+    const rotated = [...words.slice(shift), ...words.slice(0, shift)];
+    let line = rotated.join(' ') + '.';
+    line = line.charAt(0).toUpperCase() + line.slice(1);
+    out.push(line);
+  }
+  return out;
 }
 
 /**

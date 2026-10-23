@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import Parser from 'rss-parser';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { splitSentences, cutIntoFragments, foldCorpora, CUT_LEVELS, hashSeed, mulberry32 } from './lib/cutup.js';
+import { splitSentences, cutIntoFragments, foldCorpora, CUT_LEVELS, hashSeed, mulberry32, permute } from './lib/cutup.js';
 import { articlePool } from './lib/articles.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -115,6 +115,14 @@ async function buildPool(source, cutLevel, rng) {
   }
   throw new Error('Source needs either a url or text');
 }
+
+app.post('/api/permute', (req, res) => {
+  const { text } = req.body || {};
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: 'text is required — give the dial a phrase' });
+  }
+  res.json({ results: permute(text) });
+});
 
 app.post('/api/cutup', async (req, res) => {
   const { sourceA, sourceB, lines, cut, seed } = req.body || {};

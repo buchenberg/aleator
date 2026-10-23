@@ -21,8 +21,96 @@ const rollDie = () => DIE_FACES[Math.floor(Math.random() * DIE_FACES.length)];
 // of the run on screen (so share links point at this exact cut-up).
 const fold = { text: null, count: 0 };
 let currentSeed = null;
+let lastFeeds = ['—', '—'];
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ── the word horde: your stash, in localStorage ─────────────────────────── */
+
+const HORDE_KEY = 'aleator.horde.v1';
+const HORDE_MAX = 200;
+
+function hordeAll() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(HORDE_KEY) || '[]');
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+}
+
+function hordeSave(entries) {
+  localStorage.setItem(HORDE_KEY, JSON.stringify(entries.slice(-HORDE_MAX)));
+  renderHorde();
+}
+
+function hordeAdd(text, meta) {
+  const clean = text.trim();
+  if (clean.length < 2) return;
+  const entries = hordeAll();
+  if (entries.some((e) => e.text === clean)) return; // the horde is a horde, not a ledger
+  entries.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), text: clean, meta });
+  hordeSave(entries);
+  toast(`stashed in the word horde 🎲 (${entries.length})`);
+}
+
+function hordeRemove(id) {
+  hordeSave(hordeAll().filter((e) => e.id !== id));
+}
+
+function hordeText() {
+  return hordeAll().map((e) => e.text).join('\n');
+}
+
+function renderHorde() {
+  const entries = hordeAll();
+  const count = document.getElementById('horde-count');
+  const list = document.getElementById('horde-list');
+  const clear = document.getElementById('horde-clear');
+  if (!count || !list) return;
+  count.textContent = entries.length;
+  clear.hidden = entries.length === 0;
+  list.innerHTML = '';
+  for (const entry of [...entries].reverse()) {
+    const li = document.createElement('li');
+    li.className = `horde-item ${entry.meta?.kind || 'fragment'}`;
+    const textDiv = document.createElement('div');
+    textDiv.className = 'horde-text';
+    textDiv.textContent = entry.text.length > 160 ? entry.text.slice(0, 160) + '…' : entry.text;
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'horde-meta';
+    const label = entry.meta?.kind === 'composition'
+      ? 'composition'
+      : entry.meta?.kind === 'line'
+        ? 'line'
+        : 'fragment';
+    const when = entry.meta?.date ? new Date(entry.meta.date).toLocaleDateString() : '';
+    metaDiv.textContent = `${label}${when ? ' · ' + when : ''}${entry.meta?.seed ? ' · seed ' + entry.meta.seed : ''}`;
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'horde-del';
+    del.textContent = '×';
+    del.title = 'remove from horde';
+    del.addEventListener('click', () => hordeRemove(entry.id));
+    li.append(textDiv, metaDiv, del);
+    list.appendChild(li);
+  }
+}
+
+let toastTimer = null;
+function toast(message) {
+  let el = document.getElementById('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
 
 init();
 
@@ -59,6 +147,49 @@ function setDefaultFeeds() {
     if (options.length > 0) select.value = options[choose].value;
   }
 }
+
+/* ── permutations: Gysin's dial ─────────────────────────────────────────── */
+
+async function runPermute() {
+  const input = document.getElementById('perm-input');
+  const out = document.getElementById('perm-out');
+  const text = input.value.trim();
+  if (!text) return;
+  out.innerHTML = '<span class="perm-busy">turning the dial…</span>';
+  try {
+    const res = await fetch('/api/permute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    out.innerHTML = '';
+    const meta = document.createElement('p');
+    meta.className = 'perm-meta';
+    meta.textContent = `${data.results.length} readings of the same phrase:`;
+    out.appendChild(meta);
+    for (const line of data.results) {
+      const p = document.createElement('p');
+      p.className = 'perm-line';
+      const span = document.createElement('span');
+      span.className = 'die-roll';
+      span.textContent = rollDie();
+      p.appendChild(span);
+      p.appendChild(document.createTextNode(line));
+      out.appendChild(p);
+    }
+    const stash = document.createElement('button');
+    stash.type = 'button';
+    stash.className = 'stash-line';
+    stash.textContent = '✚ stash the whole dial';
+    stash.addEventListener('click', () => hordeAdd(data.results.join('\n'), currentSeed ? { seed: currentSeed, kind: 'composition', date: Date.now() } : { kind: 'composition', date: Date.now() }));
+    out.appendChild(stash);
+  } catch (err) {
+    out.innerHTML = `<span class="err">${err.message}</span>`;
+  }
+}
+
 
 /** Share links: ?seed=&fa=&fb=&cut=&lines=&ft=&tw= prefill and auto-run. */
 function applyLocationParams() {
@@ -104,6 +235,43 @@ document.getElementById('cutup-form').addEventListener('submit', (ev) => {
 });
 
 FOLD.addEventListener('click', () => foldIn());
+document.getElementById('perm-go').addEventListener('click', runPermute);
+document.getElementById('perm-input').addEventListener('keydown', (ev) => {
+  if (ev.key === 'Enter') {
+    ev.preventDefault();
+    runPermute();
+  }
+});
+document.getElementById('horde-clear').addEventListener('click', () => {
+  hordeSave([]);
+  toast('the word horde is scattered 🎲');
+});
+document.getElementById('horde-drawer').addEventListener('toggle', (ev) => {
+  if (ev.target.open) renderHorde();
+});
+
+// stashing: click a fragment span to hoard just that; ✚ hoards the whole line
+OUTPUT.addEventListener('click', (ev) => {
+  const stashButton = ev.target.closest('.stash-line');
+  if (stashButton?.dataset.line) {
+    hordeAdd(stashButton.dataset.line, currentRunMeta('line'));
+    return;
+  }
+  const span = ev.target.closest('span');
+  if (!span || !/^frag-(a|b|x)$/.test(span.className)) return;
+  hordeAdd(span.dataset.t?.replace(/[,;:.—]+$/, '') || '', currentRunMeta());
+  span.classList.add('stashed');
+  setTimeout(() => span.classList.remove('stashed'), 900);
+});
+
+document.getElementById('stash-comp').addEventListener('click', () => {
+  if (!fold.text) return;
+  hordeAdd(fold.text, currentRunMeta('composition'));
+});
+
+function currentRunMeta(kind = 'fragment') {
+  return { seed: currentSeed, feeds: [lastFeeds[0], lastFeeds[1]], kind, date: Date.now() };
+}
 
 /** Fresh run: source A + source B from the form, fold counter resets. */
 async function run() {
@@ -172,6 +340,7 @@ let typingSession = 0;
 
 async function renderWrapped(data, { folded = false } = {}) {
   currentSeed = data.seed ?? null;
+  lastFeeds = [data.feeds[0], data.feeds[1]];
   const session = ++typingSession;
 
   OUTPUT.innerHTML = '';
@@ -222,8 +391,18 @@ async function renderWrapped(data, { folded = false } = {}) {
       p.appendChild(span);
       spans.push(span);
     }
+    // the ✚ stashes the whole assembled line for the word horde
+    const lineStash = document.createElement('button');
+    lineStash.type = 'button';
+    lineStash.className = 'stash-line';
+    lineStash.title = 'stash this line in the word horde';
+    lineStash.textContent = '✚';
+    lineStash.dataset.line = line.text;
+    p.appendChild(lineStash);
     OUTPUT.appendChild(p);
   }
+  const stashComp = document.getElementById('stash-comp');
+  stashComp.hidden = false;
 
   const typing = TYPEWRITER.checked && !reducedMotion;
   if (typing) {
@@ -236,7 +415,6 @@ async function renderWrapped(data, { folded = false } = {}) {
   // cut-up is what gets folded next time around
   fold.text = data.fragments.map((l) => l.text).join('\n');
   updateFoldButton();
-  permUrl(data, meta);
 }
 
 async function typewrite(spans, session) {
@@ -314,6 +492,10 @@ async function loadAbout() {
 
 /* ── permalinks ─────────────────────────────────────────────────────────── */
 
+/**
+ * Opt-in only: the address bar stays random (every refresh is a new roll).
+ * A permalink exists solely to be copied from the 🎲 chip.
+ */
 function permalink(data) {
   // pasted-text sources can't travel in a URL — permalink needs both feeds
   if (!currentSeed || !(data.sourceA?.url && data.sourceB?.url)) return null;
@@ -329,12 +511,6 @@ function permalink(data) {
   return `${location.origin}${location.pathname}?${q}`;
 }
 
-function permUrl(data, permalink) {
-  if (permalink) {
-    history.replaceState(null, '', permalink.replace(location.origin, ''));
-  }
-}
-
 function updateFoldButton() {
   FOLD.hidden = false;
   FOLD.textContent = fold.count > 0
@@ -342,7 +518,13 @@ function updateFoldButton() {
     : 'Fold it in again';
 }
 
-function sourceSpec(select, urlInput, textInput) {
+function sourceSpec(select, urlInput, textInput, slot = null) {
+  // "fold from the word horde" — the stash outranks feeds but not pasted text
+  if (slot) {
+    const hordeOn = document.querySelector(`input[data-horde-slot="${slot}"]`)?.checked
+      && hordeText().trim().length > 0;
+    if (hordeOn) return { text: hordeText() };
+  }
   if (textInput.value.trim()) return { text: textInput.value };
   const spec = urlInput.value.trim()
     ? { url: urlInput.value.trim() }

@@ -13,11 +13,21 @@
     <p class="tagline">fold two feed sources into one cut-up, William S. Burroughs style.</p>
 
     <form id="cutup-form">
+      <fieldset class="perm">
+        <legend>Permutations — Gysin's dial</legend>
+        <div class="perm-row">
+          <input type="text" id="perm-input" placeholder="one phrase, rotated by every word…">
+          <button type="button" id="perm-go">Perm</button>
+        </div>
+        <div id="perm-out" aria-live="polite"></div>
+      </fieldset>
+
       <fieldset>
         <legend>Source A <span class="swatch swatch-a"></span></legend>
         <select id="feed-a"></select>
         <input type="url" id="url-a" placeholder="or paste a feed URL">
         <textarea id="text-a" placeholder="or paste raw text"></textarea>
+        <label class="use-horde"><input type="checkbox" data-horde-slot="a"> fold from the word horde</label>
       </fieldset>
 
       <fieldset>
@@ -25,6 +35,7 @@
         <select id="feed-b"></select>
         <input type="url" id="url-b" placeholder="or paste a feed URL">
         <textarea id="text-b" placeholder="or paste raw text"></textarea>
+        <label class="use-horde"><input type="checkbox" data-horde-slot="b"> fold from the word horde</label>
       </fieldset>
 
       <label for="lines">Lines: <input type="number" id="lines" min="1" max="24" value="8"></label>
@@ -45,6 +56,17 @@
     <button id="fold" type="button" hidden>Fold it in again</button>
 
     <section id="output" aria-live="polite"></section>
+
+    <button id="stash-comp" type="button" hidden>✚ Stash whole composition</button>
+
+    <details class="horde" id="horde-drawer">
+      <summary>🎲 Word horde (<span id="horde-count">0</span>)</summary>
+      <div class="horde-tools">
+        <button type="button" id="horde-clear" hidden>empty the horde</button>
+        <span class="horde-hint">click any fragment to stash it; click ✚ to stash a line</span>
+      </div>
+      <ul id="horde-list"></ul>
+    </details>
 
     <details class="about">
       <summary>📖 About the machine</summary>
